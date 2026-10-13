@@ -10,8 +10,8 @@ on:
 permissions:
   contents: read
 tools:
-  edit: true
-  web-fetch: {}
+  edit: 
+  web-fetch:
 network:
   allowed:
     - github.blog
