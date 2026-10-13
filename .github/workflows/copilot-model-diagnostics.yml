@@ -48,7 +48,7 @@ jobs:
           )
           for command in "${commands[@]}"; do
             read -r -a args <<< "$command"
-            echo "---- copilot $command ----"
+            echo "---- copilot -i $command ----"
             timeout 20s copilot "${args[@]}" || echo "command failed: copilot $command"
             echo
           done
