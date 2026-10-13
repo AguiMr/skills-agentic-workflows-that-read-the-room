@@ -1,0 +1,67 @@
+name: Copilot Model Diagnostics
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostics:
+    name: Inspect Copilot CLI model support
+    runs-on: ubuntu-latest
+    env:
+      COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+    steps:
+      - name: Install Copilot CLI
+        run: npm install --global @github/copilot@1.0.96
+
+      - name: Report Copilot CLI diagnostics
+        shell: bash
+        run: |
+          set -eo pipefail
+
+          echo "=== PATH ==="
+          echo "$PATH"
+          echo
+
+          echo "=== which copilot ==="
+          which copilot || true
+          echo
+
+          echo "=== copilot --version ==="
+          copilot --version || true
+          echo
+
+          echo "=== copilot --help ==="
+          copilot --help || true
+          echo
+
+          echo "=== Try common model-list commands ==="
+          commands=(
+            "models list" \
+            "model list" \
+            "model ls" \
+            "models" \
+            "model --list" \
+            "model --help"
+          )
+          for command in "${commands[@]}"; do
+            read -r -a args <<< "$command"
+            echo "---- copilot $command ----"
+            timeout 20s copilot "${args[@]}" || echo "command failed: copilot $command"
+            echo
+          done
+
+          echo "=== Relevant configuration variables ==="
+          for name in COPILOT_MODEL GH_AW_INFO_MODEL GH_AW_MODEL_AGENT_COPILOT COPILOT_GITHUB_TOKEN; do
+            if [ -n "$(printenv "$name" 2>/dev/null)" ]; then
+              echo "$name=set (value hidden)"
+            else
+              echo "$name=unset"
+            fi
+          done
+          echo
+
+          echo "=== Names of COPILOT/GH_AW environment variables ==="
+          env | cut -d= -f1 | grep -E 'COPILOT|GH_AW' | sort -u || true
