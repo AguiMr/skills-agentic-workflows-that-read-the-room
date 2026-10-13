@@ -2,6 +2,7 @@
 name: update-github-info
 description: Refresh the GitHub Info page with useful updates from the GitHub Blog, Changelog, and Awesome Copilot workflows.
 intent: Propose concise, source-linked updates to the GitHub Info page for Mona to review.
+model: gpt-4.1
 on:
   schedule:
     - cron: "0 9 * * *"
